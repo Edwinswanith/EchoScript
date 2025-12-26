@@ -1,0 +1,82 @@
+module.exports = {
+    // STT Settings (Speech-to-Text using ElevenLabs)
+    sttProvider: 'elevenlabs',              // 'elevenlabs' or 'groq'
+    elevenlabsApiKey: '',  // ElevenLabs API key for both STT and TTS
+    groqApiKey: '',  // Groq API key (backup STT, CrewAI)
+    sttModel: 'scribe_v2',     // ElevenLabs model for STT
+    bufferDuration: 3000,                   // Audio buffer duration in milliseconds
+    
+    // General Settings
+    hotkey: 'CommandOrControl+Shift+S',
+    autoLaunch: false,
+    language: 'auto',                       // 'auto' for automatic language detection
+    voiceCommands: true,
+    typingSpeed: 50,
+    showFloatingUI: false,
+    customCommands: {},
+
+    // CrewAI Settings (Natural Language Command Processing)
+    crewaiEnabled: true,                    // Enable CrewAI agent for intelligent command extraction
+    groqApiKey: '',
+    crewaiModel: 'llama-3.3-70b-versatile',       // Groq model to use (llama-3.3-70b-versatile, mixtral-8x7b-32768, etc.)
+
+
+    // Visual Indicator Settings
+    indicator: {
+        enabled: true,                    // Show/hide indicator
+        position: 'bottom-right',         // 'bottom-right', 'bottom-left', 'top-right', 'top-left'
+        offsetX: 40,                      // Distance from edge (px)
+        offsetY: 40,                      // Distance from edge (px)
+        opacity: 0.9,                     // Overall opacity (0.0 to 1.0)
+        animations: true,                 // Enable animations
+        audioVisualization: true,         // Show waveform during speech
+        autoHide: false,                  // Hide when idle (false = always visible)
+        autoHideDelay: 3000,              // Delay before hiding (ms)
+        clickThrough: true                // Allow clicks to pass through
+    },
+
+    // Trigger Word Settings (Voice Activation)
+    triggerWordEnabled: true,             // Enable voice activation with trigger word
+    triggerWord: 'sana',                  // Word to activate voice typing
+    deactivatePhrase: 'sana close',       // Phrase to deactivate voice typing
+    triggerWordCaseSensitive: false,      // Case-sensitive trigger word matching
+    backgroundListening: true,            // Keep listening for trigger word even when idle
+    backgroundListeningTimeout: 0,        // Auto-stop background listening after N seconds (0 = never)
+
+    // MongoDB Configuration for EchoScript
+    mongodb: {
+        connectionString: '',
+        databaseName: 'EchoScript'
+    },
+
+    // Google OAuth Configuration
+    oauth: {
+        clientId: '',
+        clientSecret: '',
+        redirectUri: 'http://localhost'   // BrowserWindow intercepts the callback, no Express server needed
+    },
+
+    // TTS Settings (ElevenLabs)
+    tts: {
+        enabled: false,                        // Default to disabled; user can enable from dashboard
+        hotkey: 'CommandOrControl+Alt+S',      // Global shortcut to read selected text
+        voice: 'EXAVITQu4vr4xnSDxMaL',         // ElevenLabs voice ID (Bella)
+        model: 'eleven_multilingual_v2'        // ElevenLabs TTS model
+    },
+
+    // Translation Settings
+    translation: {
+        enabled: false,                         // Set to true to translate to English, false to type in original language (Telugu, Hindi, etc.)
+        model: 'llama-3.3-70b-versatile'        // Groq model for translation
+    },
+
+    // WebSocket Configuration for Real-Time Updates
+    websocket: {
+        enabled: true,                          // Enable WebSocket server
+        port: 8080,                             // WebSocket server port
+        heartbeatInterval: 30000,               // Heartbeat interval in ms (30s)
+        reconnectInterval: 5000,                // Client reconnect interval in ms
+        maxReconnectAttempts: 10,               // Max reconnect attempts before giving up
+        jwtSecret: 'echoscripts-jwt-secret-change-in-production-2024'  // JWT secret for token generation
+    }
+};

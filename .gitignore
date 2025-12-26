@@ -1,0 +1,9 @@
+.claude/
+dist/
+node_modules/
+testing/
+*.sh
+*.txt
+config.js
+1config.js
+2config.js

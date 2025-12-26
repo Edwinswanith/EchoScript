@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speech Typer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="indicator">
+      <div class="pulse-dot"></div>
+      <div class="status-text" id="statusText">Listening...</div>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    // Listen for status updates
+    ipcRenderer.on('status-update', (event, status) => {
+      const statusText = document.getElementById('statusText');
+      statusText.textContent = status;
+    });
+  </script>
+</body>
+</html>
