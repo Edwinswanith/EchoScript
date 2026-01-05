@@ -1,0 +1,14 @@
+.claude/
+.cursor/
+backup/
+dist/
+node_modules/
+testing/
+logs/
+*.sh
+*.txt
+*.js
+config.js
+config.json
+1config.js
+2config.js

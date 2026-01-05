@@ -1,0 +1,60 @@
+module.exports = {
+    // STT Settings (Speech-to-Text)
+    sttProvider: 'elevenlabs',              // ElevenLabs STT provider
+    elevenlabsApiKey: 'your_elevenlabs_api_key',  // ElevenLabs API key for both STT and TTS
+    geminiApiKey: 'your_gemini_api_key',  // Google Gemini API key (for translation) - Set your API key here
+    sttModel: 'scribe_v2',     // ElevenLabs model for STT
+    bufferDuration: 2000,                   // Audio buffer duration in milliseconds
+    
+    // General Settings
+    hotkey: 'CommandOrControl+Shift+S',
+    autoLaunch: false,
+    language: 'auto',                       // 'auto' for automatic language detection
+    voiceCommands: false,                    // Disabled - only typing text, no commands
+    typingSpeed: 50,                        // Base typing speed in ms/char (fallback when adaptive disabled)
+    adaptiveTyping: true,                   // Enable adaptive typing speed (short text=fast, long text=readable)
+    showFloatingUI: false,
+    customCommands: {},
+
+
+    // Visual Indicator Settings
+    indicator: {
+        enabled: true,                    // Show/hide indicator
+        position: 'bottom-right',         // 'bottom-right', 'bottom-left', 'top-right', 'top-left'
+        offsetX: 40,                      // Distance from edge (px)
+        offsetY: 40,                      // Distance from edge (px)
+        opacity: 0.9,                     // Overall opacity (0.0 to 1.0)
+        animations: true,                 // Enable animations
+        audioVisualization: true,         // Show waveform during speech
+        autoHide: false,                  // Hide when idle (false = always visible)
+        autoHideDelay: 3000,              // Delay before hiding (ms)
+        clickThrough: true                // Allow clicks to pass through
+    },
+
+    // Trigger Word Settings (Voice Activation)
+    triggerWordEnabled: true,             // Enable voice activation with trigger word
+    triggerWord: 'sana',                  // Word to activate voice typing
+    deactivatePhrase: 'sana close',       // Phrase to deactivate voice typing
+    triggerWordCaseSensitive: false,      // Case-sensitive trigger word matching
+    backgroundListening: true,            // Keep listening for trigger word even when idle
+    backgroundListeningTimeout: 0,        // Auto-stop background listening after N seconds (0 = never)
+
+    // TTS Settings (ElevenLabs)
+    tts: {
+        enabled: false,                        // Default to disabled; user can enable from dashboard
+        hotkey: 'CommandOrControl+Alt+S',      // Global shortcut to read selected text
+        voice: 'EXAVITQu4vr4xnSDxMaL',         // ElevenLabs voice ID (Bella)
+        model: 'eleven_multilingual_v2'        // ElevenLabs TTS model
+    },
+
+    // Translation Settings
+    translation: {
+        enabled: true,                          // Translate non-English (e.g., Tamil) to English before typing
+        model: 'gemini-2.5-flash'           // Gemini model for translation
+    },
+
+    // CrewAI Settings (Text and Command Extraction)
+    crewaiEnabled: true,                        // Enable CrewAI to extract text and keyboard commands
+    crewaiModel: 'gemini-2.5-flash',        // Gemini model for CrewAI (uses same API key as translation)
+    crewaiDebug: false                          // Enable debug logging for CrewAI
+};

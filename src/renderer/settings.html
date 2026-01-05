@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Deepgram Speech Typer</title>
+    <link rel="stylesheet" href="settings.css">
+</head>
+
+<body>
+    <div class="settings-container">
+        <h1>Settings</h1>
+
+        <div class="settings-section">
+            <h2>Deepgram Configuration</h2>
+
+            <div class="form-group">
+                <label for="apiKey">API Key</label>
+                <input type="password" id="apiKey" placeholder="Enter your Deepgram API key">
+                <small>Get your API key from <a href="https://deepgram.com" target="_blank">deepgram.com</a></small>
+            </div>
+
+            <div class="form-group">
+                <label for="language">Language</label>
+                <select id="language">
+                    <option value="en-US">English (US)</option>
+                    <option value="en-GB">English (UK)</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                    <option value="it">Italian</option>
+                    <option value="pt">Portuguese</option>
+                    <option value="nl">Dutch</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="model">Model</label>
+                <select id="model">
+                    <option value="nova-2">Nova-2 (Recommended)</option>
+                    <option value="nova">Nova</option>
+                    <option value="base">Base</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2>Behavior</h2>
+
+            <div class="form-group">
+                <label for="hotkey">Global Hotkey</label>
+                <input type="text" id="hotkey" placeholder="CommandOrControl+Shift+S" readonly>
+                <small>Currently: Ctrl+Shift+S (customization coming soon)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="typingSpeed">Typing Speed (ms)</label>
+                <input type="number" id="typingSpeed" min="0" max="1000" step="10">
+                <small>Delay between characters (0-1000ms)</small>
+            </div>
+
+            <div class="form-group checkbox">
+                <label>
+                    <input type="checkbox" id="voiceCommands">
+                    Enable voice commands
+                </label>
+            </div>
+
+            <div class="form-group checkbox">
+                <label>
+                    <input type="checkbox" id="showFloatingUI">
+                    Show floating indicator
+                </label>
+            </div>
+
+            <div class="form-group checkbox">
+                <label>
+                    <input type="checkbox" id="punctuate">
+                    Auto-punctuate
+                </label>
+            </div>
+
+            <div class="form-group checkbox">
+                <label>
+                    <input type="checkbox" id="autoLaunch">
+                    Start with Windows
+                </label>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button id="saveBtn" class="btn btn-primary">Save Settings</button>
+            <button id="cancelBtn" class="btn btn-secondary">Cancel</button>
+        </div>
+
+        <div id="message" class="message"></div>
+    </div>
+
+    <script src="settings.js"></script>
+</body>
+
+</html>

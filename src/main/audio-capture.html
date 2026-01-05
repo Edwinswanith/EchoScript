@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Audio Capture</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        let mediaRecorder = null;
+        let audioContext = null;
+        let audioWorkletNode = null;
+        let stream = null;
+        let analyser = null;
+
+        // Initialize audio capture
+        async function startCapture() {
+            try {
+                console.log('[AudioCapture] Starting audio capture...');
+                console.log('[AudioCapture] Requesting microphone access...');
+
+                // Request microphone access
+                stream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        channelCount: 1,
+                        sampleRate: 16000,
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+
+                console.log('[AudioCapture] Microphone access granted');
+                console.log('[AudioCapture] Audio tracks:', stream.getAudioTracks().length);
+
+                if (stream.getAudioTracks().length > 0) {
+                    const track = stream.getAudioTracks()[0];
+                    console.log('[AudioCapture] Audio track settings:', track.getSettings());
+                }
+
+                // Create audio context
+                audioContext = new AudioContext({ sampleRate: 16000 });
+                console.log('[AudioCapture] AudioContext created:', {
+                    sampleRate: audioContext.sampleRate,
+                    state: audioContext.state
+                });
+
+                const source = audioContext.createMediaStreamSource(stream);
+                console.log('[AudioCapture] MediaStreamSource created');
+
+                // Create analyser for audio level detection
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                analyser.smoothingTimeConstant = 0.8;
+                source.connect(analyser);
+                console.log('[AudioCapture] Analyser connected');
+
+                // Create script processor for audio data
+                const processor = audioContext.createScriptProcessor(4096, 1, 1);
+                console.log('[AudioCapture] ScriptProcessor created (buffer size: 4096)');
+
+                let audioChunksProcessed = 0;
+
+                processor.onaudioprocess = (e) => {
+                    const float32Array = e.inputBuffer.getChannelData(0);
+
+                    // Convert Float32Array to Int16Array (PCM)
+                    const int16Array = new Int16Array(float32Array.length);
+                    for (let i = 0; i < float32Array.length; i++) {
+                        const s = Math.max(-1, Math.min(1, float32Array[i]));
+                        int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                    }
+
+                    // Convert Int16Array to Buffer for IPC transmission
+                    // Create a new Buffer from the ArrayBuffer to ensure proper serialization
+                    const audioBuffer = Buffer.from(int16Array.buffer, int16Array.byteOffset, int16Array.byteLength);
+                    
+                    // Send audio data to main process
+                    // Note: Electron IPC will serialize Buffer, but we'll handle conversion on the main process side
+                    ipcRenderer.send('audio-data', audioBuffer);
+
+                    audioChunksProcessed++;
+                    if (audioChunksProcessed % 100 === 0) {
+                        console.log(`[AudioCapture] Processed ${audioChunksProcessed} audio chunks (${int16Array.length * audioChunksProcessed} samples)`);
+                    }
+                };
+
+                analyser.connect(processor);
+                processor.connect(audioContext.destination);
+                console.log('[AudioCapture] Audio pipeline connected');
+
+                // Start audio level monitoring
+                monitorAudioLevel();
+
+                console.log('[AudioCapture] Audio capture started successfully');
+                ipcRenderer.send('audio-started');
+            } catch (error) {
+                console.error('[AudioCapture] Error starting audio capture:', error);
+                console.error('[AudioCapture] Error name:', error.name);
+                console.error('[AudioCapture] Error message:', error.message);
+
+                // Provide more specific error messages
+                let errorMessage = error.message;
+                if (error.name === 'NotAllowedError') {
+                    errorMessage = 'Microphone permission denied by user';
+                } else if (error.name === 'NotFoundError') {
+                    errorMessage = 'No microphone device found';
+                } else if (error.name === 'NotReadableError') {
+                    errorMessage = 'Microphone is already in use by another application';
+                }
+
+                ipcRenderer.send('audio-error', errorMessage);
+            }
+        }
+
+        function monitorAudioLevel() {
+            if (!analyser) return;
+
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+            const checkLevel = () => {
+                if (!analyser || !audioContext) return;
+
+                analyser.getByteFrequencyData(dataArray);
+
+                // Calculate average volume
+                let sum = 0;
+                for (let i = 0; i < dataArray.length; i++) {
+                    sum += dataArray[i];
+                }
+                const average = sum / dataArray.length;
+                const normalizedLevel = average / 255; // 0.0 to 1.0
+
+                // Send audio level to main process (throttled to ~30fps)
+                ipcRenderer.send('audio-level', normalizedLevel);
+
+                // Continue monitoring
+                if (audioContext && audioContext.state === 'running') {
+                    setTimeout(checkLevel, 33); // ~30fps
+                }
+            };
+
+            checkLevel();
+        }
+
+        function stopCapture() {
+            try {
+                console.log('[AudioCapture] Stopping audio capture...');
+
+                if (audioContext) {
+                    console.log('[AudioCapture] Closing AudioContext...');
+                    audioContext.close();
+                    audioContext = null;
+                }
+
+                if (stream) {
+                    console.log('[AudioCapture] Stopping media stream tracks...');
+                    stream.getTracks().forEach(track => {
+                        console.log('[AudioCapture] Stopping track:', track.label);
+                        track.stop();
+                    });
+                    stream = null;
+                }
+
+                analyser = null;
+
+                console.log('[AudioCapture] Audio capture stopped successfully');
+                ipcRenderer.send('audio-stopped');
+            } catch (error) {
+                console.error('[AudioCapture] Error stopping audio capture:', error);
+            }
+        }
+
+        // Listen for commands from main process
+        ipcRenderer.on('start-capture', startCapture);
+        ipcRenderer.on('stop-capture', stopCapture);
+
+        console.log('Audio capture renderer loaded');
+    </script>
+</body>
+
+</html>
